@@ -9,7 +9,8 @@ export default async function handler(req, res) {
         `
         MATCH (from {id: $fromId}), (to {id: $toId})
         MATCH path = (from)-[r:ROUTE*1..100]->(to)
-        WITH path, reduce(totalWeight = 0, rel IN r | totalWeight + rel.distance) AS totalWeight
+        WITH path, 
+            reduce(totalWeight = 0, rel IN r | totalWeight + rel[$criterion]) AS totalWeight
         RETURN path, totalWeight
         ORDER BY totalWeight ASC
         LIMIT 1;
