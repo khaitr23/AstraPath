@@ -136,12 +136,10 @@ export class AddEdgePage extends Component<{}, AddEdgeState> {
         })
         if(response.ok){
             const data = await response.json()
-            console.log(data)
             let fact: Node[] = []
             let ware: Node[] = []
             let end: Node[] = []
             data.forEach((item) => {
-                console.log("parsing", item, item.id, item.labels, item.address)
                 if(item.labels[0] === "factory"){
                     fact.push({kind: "factory", name: item.id, address: item.address})
                 }
@@ -152,7 +150,6 @@ export class AddEdgePage extends Component<{}, AddEdgeState> {
                     end.push({kind: "endpoint", name: item.id, address: item.address})
                 }
             }) 
-            console.log(fact, ware, end)
             this.setState({factories: fact, warehouses: ware, endpoints: end})           
         }
         else{

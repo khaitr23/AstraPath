@@ -5,10 +5,13 @@ import React from "react";
 import { AddNodePage } from "./AddNode";
 import { AddEdgePage } from "./AddEdge";
 import ShortestPath from "./ShortestPath";
+import { ForceGraph2D } from "react-force-graph";
+import { GraphPage } from "./Graph";
 
 export default function Home() {
   return (
     <div>
+      <GraphPage/>
       <AddNodePage />
       <AddEdgePage />
       <ShortestPath />
