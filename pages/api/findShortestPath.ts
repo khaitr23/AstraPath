@@ -7,12 +7,12 @@ export default async function handler(req, res) {
     try {
       const result = await session.run(
         `
-        MATCH (start {id: $startId}), (end {id: $endId})
-        MATCH p = shortestPath((start)-[:ROUTE*]-(end))
-        UNWIND relationships(p) AS rel
-        RETURN nodes(p) AS path, SUM(rel[$criteria]) AS totalCost
-        ORDER BY totalCost
-        LIMIT 1
+        MATCH (from {id: $fromId}), (to {id: $toId})
+        MATCH path = (from)-[r:ROUTE*1..100]->(to)
+        WITH path, reduce(totalWeight = 0, rel IN r | totalWeight + rel.distance) AS totalWeight
+        RETURN path, totalWeight
+        ORDER BY totalWeight ASC
+        LIMIT 1;
         `,
         { startId, endId, criteria }
       );
