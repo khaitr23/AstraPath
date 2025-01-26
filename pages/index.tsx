@@ -3,9 +3,13 @@ import Layout, { siteTitle } from "../components/layout";
 import utilStyles from "../styles/utils.module.css";
 import React from "react";
 import { AddNodePage } from "./AddNode";
+import { AddEdgePage } from "./AddEdge";
 
 export default function Home() {
   return (
-    <AddNodePage/>
+    <div>
+      <AddNodePage/>
+      <AddEdgePage/>
+    </div>
   );
 }
