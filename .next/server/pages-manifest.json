@@ -2,7 +2,5 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/": "pages/index.js",
-  "/api/getAllNodes": "pages/api/getAllNodes.js",
-  "/api/findShortestPath": "pages/api/findShortestPath.js"
+  "/": "pages/index.js"
 }
