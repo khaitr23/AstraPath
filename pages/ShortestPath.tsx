@@ -94,17 +94,17 @@ const ShortestPath: React.FC = () => {
             {path.pathNodes.map((segment: any, index: number) => (
               <li key={index}>
                 <div>
-                  <strong>Start Node:</strong> {segment.startNode.name} (ID:{" "}
-                  {segment.startNode.id})
+                  <strong>Start Node:</strong> {segment.startNode.id}
                 </div>
                 <div>
-                  <strong>End Node:</strong> {segment.endNode.name} (ID:{" "}
-                  {segment.endNode.id})
+                  <strong>End Node:</strong> {segment.endNode.id}
                 </div>
                 <div>
-                  <strong>Relationship:</strong> Distance:{" "}
-                  {segment.relationship.distance}, CO2 Emission:{" "}
-                  {segment.relationship.CO2_emission}
+                  <strong>Relationship: </strong>
+                  Distance: {segment.relationship.distance}, CO2 Emission:{" "}
+                  {segment.relationship.co2Emission}, moneyCost:{" "}
+                  {segment.relationship.moneyCost}, timeTaken:{" "}
+                  {segment.relationship.timeTaken}
                 </div>
               </li>
             ))}
