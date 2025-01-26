@@ -5,8 +5,8 @@ export default async function handler(req, res) {
     const session = getSession();
     try {
       const result = await session.run(`
-        MATCH ()-[r]->()
-        RETURN r
+        MATCH (start)-[r]->(end)
+        RETURN r, start.id AS startId, end.id AS endId
       `);
 
       const edges = result.records.map((record) => {
@@ -14,8 +14,8 @@ export default async function handler(req, res) {
         return {
           type: relationship.type,
           properties: relationship.properties,
-          start: relationship.startNodeElementId,
-          end: relationship.endNodeElementId,
+          start: record.get("startId"),
+          end: record.get("endId"),
         };
       });
 
