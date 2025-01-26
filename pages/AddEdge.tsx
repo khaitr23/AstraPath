@@ -136,21 +136,24 @@ export class AddEdgePage extends Component<{}, AddEdgeState> {
         })
         if(response.ok){
             const data = await response.json()
+            console.log(data)
             let fact: Node[] = []
             let ware: Node[] = []
             let end: Node[] = []
             data.forEach((item) => {
-                if(item.labels[0] === "Factory"){
+                console.log("parsing", item, item.id, item.labels, item.address)
+                if(item.labels[0] === "factory"){
                     fact.push({kind: "factory", name: item.id, address: item.address})
                 }
-                if(item.labels[0] === "Warehouse"){
+                if(item.labels[0] === "warehouse"){
                     ware.push({kind: "warehouse", name: item.id, address: item.address})
                 }
-                if(item.labels[0] === "Endpoint"){
+                if(item.labels[0] === "endpoint"){
                     end.push({kind: "endpoint", name: item.id, address: item.address})
                 }
-            })
-            this.setState({factories: fact, warehouses: ware, endpoints: end})
+            }) 
+            console.log(fact, ware, end)
+            this.setState({factories: fact, warehouses: ware, endpoints: end})           
         }
         else{
             const error = await response.json();

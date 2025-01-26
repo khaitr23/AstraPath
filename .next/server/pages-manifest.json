@@ -3,6 +3,6 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/": "pages/index.js",
-  "/api/addEdge": "pages/api/addEdge.js",
-  "/api/getAllNodes": "pages/api/getAllNodes.js"
+  "/api/getAllNodes": "pages/api/getAllNodes.js",
+  "/api/addEdge": "pages/api/addEdge.js"
 }
