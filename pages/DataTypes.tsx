@@ -9,5 +9,7 @@ export type Edge = {
     end: Node,
     distance: number,
     emissions: number,
+    time: number,
+    cost: number,
     transport: "trucks" | "plane" | "train" | "EV"
 }
