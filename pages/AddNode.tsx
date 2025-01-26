@@ -127,15 +127,15 @@ export class AddNodePage extends Component<{}, AddNodeState> {
 
     try {
       // Send data to the AddNode API endpoint
-      const response = await fetch("/api/addNode", {
+      const response = await fetch("/api/addNodes", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          id: name, // Using 'name' as the ID
-          address: address,
-          type: kind,
+          id: this.state.name, // Using 'name' as the ID
+          address: this.state.address,
+          type: this.state.kind,
         }),
       });
 
