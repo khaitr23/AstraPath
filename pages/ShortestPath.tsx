@@ -104,7 +104,9 @@ const ShortestPath: React.FC = () => {
                 <div>
                   <strong>Relationship:</strong> Distance:{" "}
                   {segment.relationship.distance}, CO2 Emission:{" "}
-                  {segment.relationship.CO2_emission}
+                  {segment.relationship.co2Emission}, moneyCost:{" "}
+                  {segment.relationship.moneyCost},timeTaken:{" "}
+                  {segment.relationship.timeTaken}
                 </div>
               </li>
             ))}
