@@ -2,10 +2,5 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-<<<<<<< HEAD
   "/": "pages/index.js"
-=======
-  "/": "pages/index.js",
-  "/AddNode": "pages/AddNode.js"
->>>>>>> fb0ffc6c7fc76920cc3f3716e4745d3aa0d008ab
 }
