@@ -7,9 +7,11 @@
   },
   "dependencies": {
     "neo4j-driver": "^5.27.0",
+    "neovis.js": "^2.1.0",
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "react-force-graph": "^1.46.0"
   },
   "engines": {
     "node": ">=18"

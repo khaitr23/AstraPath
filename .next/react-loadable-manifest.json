@@ -1,1 +1,14 @@
-{}
+{
+  "pages/GraphVisualizer.tsx -> neovis.js": {
+    "id": "pages/GraphVisualizer.tsx -> neovis.js",
+    "files": [
+      "static/chunks/node_modules_neovis_js_dist_neovis-without-dependencies_js.js"
+    ]
+  },
+  "pages/index.tsx -> ./GraphVisualizer": {
+    "id": "pages/index.tsx -> ./GraphVisualizer",
+    "files": [
+      "static/chunks/pages_GraphVisualizer_tsx.js"
+    ]
+  }
+}
