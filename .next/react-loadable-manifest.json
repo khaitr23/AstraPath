@@ -1,14 +1,15 @@
 {
-  "pages/GraphVisualizer.tsx -> neovis.js": {
-    "id": "pages/GraphVisualizer.tsx -> neovis.js",
+  "components/GraphVisualizer.tsx -> neovis.js": {
+    "id": 87238,
     "files": [
-      "static/chunks/node_modules_neovis_js_dist_neovis-without-dependencies_js.js"
+      "static/chunks/fd37ac65.3e05dc91fea92dba.js",
+      "static/chunks/238.48e338b0f86e455a.js"
     ]
   },
-  "pages/index.tsx -> ./GraphVisualizer": {
-    "id": "pages/index.tsx -> ./GraphVisualizer",
+  "pages/index.tsx -> ../components/GraphVisualizer": {
+    "id": 33284,
     "files": [
-      "static/chunks/pages_GraphVisualizer_tsx.js"
+      "static/chunks/284.b5f4b8fd0c46c90e.js"
     ]
   }
 }

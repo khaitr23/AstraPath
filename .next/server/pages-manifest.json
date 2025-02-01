@@ -1,7 +1,1 @@
-{
-  "/_app": "pages/_app.js",
-  "/_error": "pages/_error.js",
-  "/_document": "pages/_document.js",
-  "/": "pages/index.js",
-  "/api/getAllNodes": "pages/api/getAllNodes.js"
-}
+{"/_app":"pages/_app.js","/_error":"pages/_error.js","/api/addNodes":"pages/api/addNodes.js","/api/getAllEdges":"pages/api/getAllEdges.js","/api/findShortestPath":"pages/api/findShortestPath.js","/api/getGraph":"pages/api/getGraph.js","/api/addEdge":"pages/api/addEdge.js","/api/getAllNodes":"pages/api/getAllNodes.js","/api/testConnection":"pages/api/testConnection.js","/":"pages/index.html","/_document":"pages/_document.js","/404":"pages/404.html"}
