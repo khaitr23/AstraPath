@@ -5,7 +5,8 @@ export default async function handler(req, res) {
     const session = getSession();
     try {
       const result = await session.run(`
-            MATCH (n)-[r]->(m)
+            MATCH (n)
+            OPTIONAL MATCH (n)-[r]->(m)
             RETURN n, r, m
      `);
 
@@ -13,17 +14,21 @@ export default async function handler(req, res) {
       const links = []
 
       result.records.forEach(record => {
-        const source = record.get('n').properties;
-        const target = record.get('m').properties;
-        const relationship = record.get('r').type;
-      
+        const sourceNode = record.get('n');
+        const source = { ...sourceNode.properties, type: sourceNode.labels[0] };
+        const relNode = record.get('m');
+        const rel = record.get('r');
+
         if (!nodes.find(node => node.id === source.id)) {
           nodes.push(source);
         }
-        if (!nodes.find(node => node.id === target.id)) {
-          nodes.push(target);
+        if (relNode && rel) {
+          const target = { ...relNode.properties, type: relNode.labels[0] };
+          if (!nodes.find(node => node.id === target.id)) {
+            nodes.push(target);
+          }
+          links.push({ source: source.id, target: target.id, type: rel.type, ...rel.properties });
         }
-        links.push({ source: source.id, target: target.id, type: relationship });
       })
 
       res.status(200).json({nodes, links});

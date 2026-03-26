@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Layout, { siteTitle } from "../components/layout";
 import utilStyles from "../styles/utils.module.css";
-import React from "react";
+import React, { useState } from "react";
 import { AddNodePage } from "../components/AddNode";
 import { AddEdgePage } from "../components/AddEdge";
 import ShortestPath from "../components/ShortestPath";
@@ -11,15 +11,14 @@ const GraphVisualizer = dynamic(() => import("../components/GraphVisualizer"), {
   ssr: false, // Disable SSR for this component
 });
 export default function Home() {
-  const query = `
-    MATCH (start)-[r]->(end)
-    RETURN start, r, end
-  `;
+  const [refreshKey, setRefreshKey] = useState(0);
+  const handleDataChanged = () => setRefreshKey((k) => k + 1);
+
   return (
     <div>
-      <GraphVisualizer query={query} />
-      <AddNodePage />
-      <AddEdgePage />
+      <GraphVisualizer refreshKey={refreshKey} onDataChanged={handleDataChanged} />
+      <AddNodePage onDataChanged={handleDataChanged} />
+      <AddEdgePage onDataChanged={handleDataChanged} refreshKey={refreshKey} />
       <ShortestPath />
     </div>
   );

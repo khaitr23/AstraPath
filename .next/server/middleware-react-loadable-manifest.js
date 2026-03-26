@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST='{"components/GraphVisualizer.tsx -> neovis.js":{"id":87238,"files":["static/chunks/fd37ac65.3e05dc91fea92dba.js","static/chunks/238.48e338b0f86e455a.js"]},"pages/index.tsx -> ../components/GraphVisualizer":{"id":33284,"files":["static/chunks/284.b5f4b8fd0c46c90e.js"]}}';
+self.__REACT_LOADABLE_MANIFEST="{\"pages/index.tsx -> ../components/GraphVisualizer\":{\"id\":\"pages/index.tsx -> ../components/GraphVisualizer\",\"files\":[\"static/chunks/components_GraphVisualizer_tsx.js\"]}}"

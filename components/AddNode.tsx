@@ -13,8 +13,10 @@ type AddNodeState = {
   address: string;
 };
 
-export class AddNodePage extends Component<{}, AddNodeState> {
-  constructor(props: {}) {
+type AddNodeProps = { onDataChanged?: () => void };
+
+export class AddNodePage extends Component<AddNodeProps, AddNodeState> {
+  constructor(props: AddNodeProps) {
     super(props);
 
     this.state = { kind: undefined, name: "", address: "" };
@@ -150,6 +152,7 @@ export class AddNodePage extends Component<{}, AddNodeState> {
 
       // Reset form fields after success
       this.setState({ kind: undefined, name: "", address: "" });
+      this.props.onDataChanged?.();
     } catch (err: any) {
       alert(`Error: ${err.message}`);
       console.error("Failed to add node:", err);

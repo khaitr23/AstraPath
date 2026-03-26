@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     const session = getSession();
     try {
       const result = await session.run(
-        `CREATE (n:${type} {id: $id, address: $address}) RETURN n`,
+        `MERGE (n:${type} {id: $id}) ON CREATE SET n.address = $address RETURN n`,
         { id, address }
       );
       res.status(200).json(result.records[0].get("n").properties);

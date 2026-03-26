@@ -18,13 +18,15 @@ type AddEdgeState = {
 const co2emissons = {trucks: 1.3, plane: 53, train: 0.17, ev: 0}
 const speed = {trucks: 55, plane: 550, train: 75, ev: 55}
 
-export class AddEdgePage extends Component<{}, AddEdgeState> {
-    constructor(props: {}){
+type AddEdgeProps = { onDataChanged?: () => void; refreshKey?: number };
+
+export class AddEdgePage extends Component<AddEdgeProps, AddEdgeState> {
+    constructor(props: AddEdgeProps){
         super(props)
 
         this.state = {
-            start: undefined, 
-            end: undefined, 
+            start: undefined,
+            end: undefined,
             transport: undefined,
             distance: 0,
             cost: 0,
@@ -34,10 +36,17 @@ export class AddEdgePage extends Component<{}, AddEdgeState> {
         }
     }
 
-    render = (): JSX.Element => {
-        if(this.state.factories.length === 0 && this.state.warehouses.length === 0 && this.state.endpoints.length === 0){
+    componentDidMount() {
+        this.getNodes()
+    }
+
+    componentDidUpdate(prevProps: AddEdgeProps) {
+        if (prevProps.refreshKey !== this.props.refreshKey) {
             this.getNodes()
         }
+    }
+
+    render = (): JSX.Element => {
         return <div className={styles.grid}>
             <h2>Add Direct Route (edge)</h2>
             <div className={styles.input}>
@@ -71,22 +80,24 @@ export class AddEdgePage extends Component<{}, AddEdgeState> {
                 <p className={styles.inputtitle}>
                     Origin of route:
                 </p>
-                <select name="starts" className={styles.textinput} 
+                <select name="starts" className={styles.textinput}
                     onChange={this.updateStart}>
                     {this.renderFactories()}
                     {this.renderWarehouses()}
-                </select> 
+                    {this.renderEndpoints()}
+                </select>
             </div>
 
             <div className={styles.input}>
                 <p className={styles.inputtitle}>
                     End of route:
                 </p>
-                <select name="ends" className={styles.textinput} 
+                <select name="ends" className={styles.textinput}
                     onChange={this.updateEnd}>
-                    {this.renderEndpoints()}
-                    {this.renderWarehouses()}
-                </select> 
+                    {this.renderFactories(this.state.start)}
+                    {this.renderWarehouses(this.state.start)}
+                    {this.renderEndpoints(this.state.start)}
+                </select>
             </div>
 
             <button className={styles.button} onClick={this.addEdge}>ADD</button>
@@ -94,38 +105,44 @@ export class AddEdgePage extends Component<{}, AddEdgeState> {
     }
 
     updateStart = (evt: ChangeEvent<HTMLSelectElement>): void => {
-        this.setState({start: evt.target.value})
+        const newStart = evt.target.value;
+        const allNodes = [...this.state.factories, ...this.state.warehouses, ...this.state.endpoints];
+        const newEnd = this.state.end === newStart
+            ? allNodes.find(n => n.name !== newStart)?.name
+            : this.state.end;
+        this.setState({start: newStart, end: newEnd});
     }
 
     updateEnd = (evt: ChangeEvent<HTMLSelectElement>): void => {
         this.setState({end: evt.target.value})
     }
 
-    renderFactories = (): JSX.Element[] => {
+    renderFactories = (exclude?: string): JSX.Element[] => {
         let towrite: JSX.Element[] = []
         for(let i:number=0; i<this.state.factories.length; i++){
             const node: Node = this.state.factories[i]
-            console.log("node:", node)
-            towrite.push(<option value={node.name}>{node.name}</option>)
+            if(node.name === exclude) continue
+            towrite.push(<option key={`factory-${i}`} value={node.name}>{node.name}</option>)
         }
-        console.log(towrite)
         return towrite
     }
 
-    renderWarehouses = (): JSX.Element[] => {
+    renderWarehouses = (exclude?: string): JSX.Element[] => {
         let towrite: JSX.Element[] = []
         for(let i:number=0; i<this.state.warehouses.length; i++){
             const node: Node = this.state.warehouses[i]
-            towrite.push(<option value={node.name}>{node.name}</option>)
+            if(node.name === exclude) continue
+            towrite.push(<option key={`warehouse-${i}`} value={node.name}>{node.name}</option>)
         }
         return towrite
     }
 
-    renderEndpoints = (): JSX.Element[] => {
+    renderEndpoints = (exclude?: string): JSX.Element[] => {
         let towrite: JSX.Element[] = []
         for(let i:number=0; i<this.state.endpoints.length; i++){
             const node: Node = this.state.endpoints[i]
-            towrite.push(<option value={node.name}>{node.name}</option>)
+            if(node.name === exclude) continue
+            towrite.push(<option key={`endpoint-${i}`} value={node.name}>{node.name}</option>)
         }
         return towrite
     }
@@ -140,17 +157,26 @@ export class AddEdgePage extends Component<{}, AddEdgeState> {
             let ware: Node[] = []
             let end: Node[] = []
             data.forEach((item) => {
-                if(item.labels[0] === "factory"){
+                if(item.labels[0] === "factory" && !fact.find(n => n.name === item.id)){
                     fact.push({kind: "factory", name: item.id, address: item.address})
                 }
-                if(item.labels[0] === "warehouse"){
+                if(item.labels[0] === "warehouse" && !ware.find(n => n.name === item.id)){
                     ware.push({kind: "warehouse", name: item.id, address: item.address})
                 }
-                if(item.labels[0] === "endpoint"){
+                if(item.labels[0] === "endpoint" && !end.find(n => n.name === item.id)){
                     end.push({kind: "endpoint", name: item.id, address: item.address})
                 }
-            }) 
-            this.setState({factories: fact, warehouses: ware, endpoints: end})           
+            })
+            const defaultStart = fact[0]?.name ?? ware[0]?.name ?? end[0]?.name;
+            const allNodes = [...fact, ...ware, ...end];
+            const defaultEnd = allNodes.find(n => n.name !== defaultStart)?.name;
+            this.setState({
+                factories: fact,
+                warehouses: ware,
+                endpoints: end,
+                start: defaultStart,
+                end: defaultEnd,
+            });
         }
         else{
             const error = await response.json();
@@ -220,7 +246,9 @@ export class AddEdgePage extends Component<{}, AddEdgeState> {
                 const result = await response.json();
                 alert("Location added successfully!");
                 console.log("Added Node:", result);
-          
+
+                this.props.onDataChanged?.();
+
                 // Reset form fields after success
                 this.setState({
                     start: undefined, 
