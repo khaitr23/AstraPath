@@ -27,7 +27,7 @@ export default async function handler(req, res) {
           if (!nodes.find(node => node.id === target.id)) {
             nodes.push(target);
           }
-          links.push({ source: source.id, target: target.id, type: rel.type, ...rel.properties });
+          links.push({ source: source.id, target: target.id, type: rel.type, elementId: rel.elementId, ...rel.properties });
         }
       })
 

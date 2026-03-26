@@ -2,8 +2,8 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
+  "/api/findShortestPath": "pages/api/findShortestPath.js",
   "/api/getGraph": "pages/api/getGraph.js",
   "/": "pages/index.js",
-  "/api/getAllNodes": "pages/api/getAllNodes.js",
-  "/api/addEdge": "pages/api/addEdge.js"
+  "/api/getAllNodes": "pages/api/getAllNodes.js"
 }
