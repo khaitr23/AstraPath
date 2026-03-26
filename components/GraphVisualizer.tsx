@@ -10,6 +10,7 @@ const GraphVisualizer: React.FC<{ refreshKey?: number; onDataChanged?: () => voi
   const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
   const [error, setError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const fgRef = useRef<any>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 400 });
 
   useEffect(() => {
@@ -34,7 +35,38 @@ const GraphVisualizer: React.FC<{ refreshKey?: number; onDataChanged?: () => voi
           setError(data.error);
         } else {
           setError(null);
+          // Pin nodes in a circle around (0,0) — ForceGraph's simulation origin
+          const r = Math.min(dimensions.width, dimensions.height) * 0.25;
+          data.nodes.forEach((node: any, i: number) => {
+            const angle = (i / data.nodes.length) * 2 * Math.PI;
+            node.x = Math.cos(angle) * r;
+            node.y = Math.sin(angle) * r;
+            node.fx = node.x;
+            node.fy = node.y;
+          });
+          // Assign curvature so parallel/bidirectional edges are visually distinct
+          const pairCount: Record<string, number> = {};
+          const pairIndex: Record<string, number> = {};
+          data.links.forEach((link: any) => {
+            const key = `${link.source}--${link.target}`;
+            pairCount[key] = (pairCount[key] ?? 0) + 1;
+          });
+          data.links.forEach((link: any) => {
+            const key = `${link.source}--${link.target}`;
+            const reverseKey = `${link.target}--${link.source}`;
+            const idx = pairIndex[key] ?? 0;
+            const total = pairCount[key];
+            const hasBidirectional = !!pairCount[reverseKey];
+            // Use non-zero curvature when bidirectional or parallel
+            if (total === 1 && !hasBidirectional) {
+              link.curvature = 0;
+            } else {
+              link.curvature = 0.3 + idx * 0.25;
+            }
+            pairIndex[key] = idx + 1;
+          });
           setGraphData(data);
+          setTimeout(() => fgRef.current?.zoomToFit(400, 40), 50);
         }
       })
       .catch((err) => setError(err.message));
@@ -61,13 +93,16 @@ const GraphVisualizer: React.FC<{ refreshKey?: number; onDataChanged?: () => voi
       </button>
       <div ref={containerRef} style={{ height: "400px", width: "100%", backgroundColor: "lightgray", overflow: "hidden" }}>
         <ForceGraph2D
+          ref={fgRef}
           graphData={graphData}
           width={dimensions.width}
           height={dimensions.height}
           nodeLabel="id"
           linkLabel="type"
-          linkDirectionalArrowLength={5}
-          linkDirectionalArrowRelPos={1}
+          linkCurvature="curvature"
+          linkWidth={2}
+          linkDirectionalArrowLength={15}
+          linkDirectionalArrowRelPos={0.8}
           nodeCanvasObject={(node: any, ctx, globalScale) => {
             const fontSize = Math.max(12 / globalScale, 3);
             const lines = [node.id, node.type ?? "", node.address ?? ""].filter(Boolean);
@@ -109,6 +144,7 @@ const GraphVisualizer: React.FC<{ refreshKey?: number; onDataChanged?: () => voi
             ctx.arc(node.x, node.y, node.__r ?? 20, 0, 2 * Math.PI);
             ctx.fill();
           }}
+          onNodeDragEnd={(node: any) => { node.fx = node.x; node.fy = node.y; }}
           linkCanvasObjectMode={() => "after"}
           linkCanvasObject={(link: any, ctx, globalScale) => {
             const start = link.source;
@@ -125,15 +161,19 @@ const GraphVisualizer: React.FC<{ refreshKey?: number; onDataChanged?: () => voi
             ].filter(Boolean);
             if (!lines.length) return;
 
-            // Offset text perpendicular to the edge so the arrow stays visible
             const dx = end.x - start.x;
             const dy = end.y - start.y;
             const len = Math.sqrt(dx * dx + dy * dy) || 1;
             const perpX = -dy / len;
             const perpY = dx / len;
-            const offset = fontSize * lines.length * 0.8;
-            const labelX = midX + perpX * offset;
-            const labelY = midY + perpY * offset;
+            const curvature = link.curvature ?? 0;
+            // react-force-graph bows arcs using the clockwise perpendicular (opposite of -dy/len, dx/len).
+            // Negate to place labels on the same side as the actual arc.
+            const arcPeakOffset = curvature * len / 2;
+            const nudgeDir = curvature >= 0 ? 1 : -1;
+            const totalOffset = arcPeakOffset + nudgeDir * fontSize * 2;
+            const labelX = midX - perpX * totalOffset;
+            const labelY = midY - perpY * totalOffset;
 
             const lineHeight = fontSize * 1.3;
             ctx.font = `${fontSize}px Sans-Serif`;
