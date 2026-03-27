@@ -8,7 +8,7 @@
   "dependencies": {
     "neo4j-driver": "^5.27.0",
     "neovis.js": "^2.1.0",
-    "next": "latest",
+    "next": "^15.5.14",
     "react": "latest",
     "react-dom": "latest",
     "react-force-graph": "^1.46.0"
