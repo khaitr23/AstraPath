@@ -1,23 +1,29 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "../../lib/neo4j";
 
-const VALID_TYPES = ["factory", "warehouse", "endpoint"];
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const { oldId, id, address, type } = req.body;
+  const { oldId, id, address, type, allTypeKeys = [] } = req.body;
 
-  if (!VALID_TYPES.includes(type)) {
-    return res.status(400).json({ error: `Invalid type. Must be one of: ${VALID_TYPES.join(", ")}` });
-  }
+  // Only alphanumeric + underscore allowed in Neo4j label identifiers
+  const safeType = String(type).replace(/[^a-zA-Z0-9_]/g, "");
+  if (!safeType) return res.status(400).json({ error: "Invalid type" });
+
+  const safeAllKeys: string[] = (allTypeKeys as string[])
+    .map((k: string) => String(k).replace(/[^a-zA-Z0-9_]/g, ""))
+    .filter(Boolean);
+
+  // Remove every known type label then set the new one
+  const removeClause = (safeAllKeys.length ? safeAllKeys : ["factory", "warehouse", "endpoint"])
+    .map(k => `REMOVE n:\`${k}\``)
+    .join(" ");
 
   const query = `
     MATCH (n {id: $oldId})
-    REMOVE n:factory REMOVE n:warehouse REMOVE n:endpoint
-    SET n:${type} SET n.id = $id, n.address = $address
+    ${removeClause}
+    SET n:\`${safeType}\`
+    SET n.id = $id, n.address = $address
     RETURN n
   `;
 

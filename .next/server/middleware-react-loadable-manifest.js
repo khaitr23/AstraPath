@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{\"pages/index.tsx -> ../components/GraphVisualizer\":{\"id\":\"pages/index.tsx -> ../components/GraphVisualizer\",\"files\":[\"static/chunks/components_GraphVisualizer_tsx.js\"]}}"
+self.__REACT_LOADABLE_MANIFEST="{\"pages/index.tsx -> ../components/GraphVisualizer\":{\"id\":\"pages/index.tsx -> ../components/GraphVisualizer\",\"files\":[\"static/chunks/_pages-dir-browser_components_GraphVisualizer_tsx.js\"]}}"
