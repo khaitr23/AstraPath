@@ -1,4 +1,10 @@
 {
+  "node_modules/@clerk/nextjs/dist/esm/app-router/client/ClerkProvider.js -> ./keyless-creator-reader.js": {
+    "id": "node_modules/@clerk/nextjs/dist/esm/app-router/client/ClerkProvider.js -> ./keyless-creator-reader.js",
+    "files": [
+      "static/chunks/_pages-dir-browser_node_modules_clerk_nextjs_dist_esm_app-router_client_keyless-creator-reader_js.js"
+    ]
+  },
   "pages/index.tsx -> ../components/GraphVisualizer": {
     "id": "pages/index.tsx -> ../components/GraphVisualizer",
     "files": [

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useClerk } from "@clerk/nextjs";
 import { ActivePath } from "./GraphVisualizer";
 import { Conditions } from "../pages/index";
 import { NodeTypeDef, EdgeTypeDef, DEFAULT_NODE_TYPES, DEFAULT_EDGE_TYPES, TYPE_COLORS } from "../lib/types";
@@ -888,6 +889,7 @@ type SidebarProps = {
   onNodeTypesChange: (v: NodeTypeDef[]) => void;
   onEdgeTypesChange: (v: EdgeTypeDef[]) => void;
   onWidthChange?: (w: number) => void;
+  isGuest?: boolean;
 };
 
 export default function Sidebar({
@@ -896,10 +898,11 @@ export default function Sidebar({
   selectedNode, selectedLink, onClearInspector,
   conditions, onConditionsChange,
   nodeTypes, edgeTypes, onNodeTypesChange, onEdgeTypesChange,
-  onWidthChange,
+  onWidthChange, isGuest,
 }: SidebarProps) {
   const [open,  setOpen]  = useState(true);
   const [tab,   setTab]   = useState<Tab>("node");
+  const { signOut } = useClerk();
   const [width, setWidth] = useState(SIDEBAR_DEFAULT);
   const widthRef = useRef(SIDEBAR_DEFAULT);
   const [resizing, setResizing] = useState(false);
@@ -977,9 +980,46 @@ export default function Sidebar({
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 16px 14px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         <div>
           <div style={{ fontWeight: 800, fontSize: 13, letterSpacing: 3, color: "#e8f0ff" }}>ASTRAPATH</div>
-          <div style={{ fontSize: 10, color: "#2d3f55", letterSpacing: 0.8, marginTop: 2 }}>Supply Chain Graph</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+            <span style={{ fontSize: 10, color: "#2d3f55", letterSpacing: 0.8 }}>Supply Chain Graph</span>
+            {isGuest && (
+              <span style={{
+                fontSize: 9, fontWeight: 700, letterSpacing: 0.5,
+                padding: "1px 6px", borderRadius: 4,
+                background: "rgba(251,191,36,0.1)", color: "#fbbf24",
+                border: "1px solid rgba(251,191,36,0.25)",
+              }}>GUEST</span>
+            )}
+          </div>
         </div>
-        <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", color: "#2d3f55", cursor: "pointer", fontSize: 14, padding: 4 }}>✕</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <button
+            onClick={() => {
+              if (isGuest) {
+                document.cookie = "guestId=; path=/; Max-Age=0";
+                window.location.href = "/login";
+              } else {
+                signOut({ redirectUrl: "/login" });
+              }
+            }}
+            title={isGuest ? "Exit guest session" : "Sign out"}
+            style={{
+              display: "flex", alignItems: "center", gap: 5,
+              padding: "4px 9px", borderRadius: 6, cursor: "pointer",
+              border: "1px solid rgba(255,255,255,0.07)",
+              background: "rgba(255,255,255,0.03)", color: "#3d4f66",
+              fontSize: 10, fontWeight: 600,
+            }}
+          >
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            {isGuest ? "Exit" : "Sign out"}
+          </button>
+          <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", color: "#2d3f55", cursor: "pointer", fontSize: 14, padding: 4 }}>✕</button>
+        </div>
       </div>
 
       {/* Legend */}

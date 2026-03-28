@@ -1,7 +1,11 @@
 import { getSession } from "../../lib/neo4j";
+import { getTenantId } from "../../lib/auth";
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
+    const tenantId = await getTenantId(req, res);
+    if (!tenantId) return res.status(401).json({ error: "Unauthorized" });
+
     const { startId, endId, criteriaOrder, conditions } = req.body;
     const { fuelIndex = 1, congestion = 1, weather = 1, payload = 10 } = conditions ?? {};
 
@@ -47,7 +51,7 @@ export default async function handler(req, res) {
     try {
       const result = await session.run(
         `
-        MATCH (from {id: $startId}), (to {id: $endId})
+        MATCH (from {id: $startId, tenantId: $tenantId}), (to {id: $endId, tenantId: $tenantId})
         MATCH path = (from)-[r:ROUTE*1..100]->(to)
         WITH path, r,
             reduce(w = 0, rel IN r | w + rel.distance) AS totalDistance,
@@ -67,7 +71,7 @@ export default async function handler(req, res) {
         ORDER BY ${orderBy}
         LIMIT 1
         `,
-        { startId, endId, fuelIndex, congestion, weather, payload }
+        { startId, endId, fuelIndex, congestion, weather, payload, tenantId }
       );
 
       // Map over the path and return the node information

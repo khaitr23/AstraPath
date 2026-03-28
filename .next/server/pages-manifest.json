@@ -3,5 +3,10 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/": "pages/index.js",
-  "/api/getGraph": "pages/api/getGraph.js"
+  "/login": "pages/login.js",
+  "/api/getGraph": "pages/api/getGraph.js",
+  "/api/getTypes": "pages/api/getTypes.js",
+  "/api/initUser": "pages/api/initUser.js",
+  "/api/getAllNodes": "pages/api/getAllNodes.js",
+  "/api/addEdge": "pages/api/addEdge.js"
 }
