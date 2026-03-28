@@ -8,12 +8,6 @@ const GraphVisualizer = dynamic(() => import("../components/GraphVisualizer"), {
 
 export type Conditions = { fuelIndex: number; congestion: number; weather: number; payload: number };
 
-function loadLS<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") return fallback;
-  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
-  catch { return fallback; }
-}
-
 export default function Home() {
   const [refreshKey,   setRefreshKey]   = useState(0);
   const [selectedOrigin, setOrigin]     = useState<string | null>(null);
@@ -26,19 +20,31 @@ export default function Home() {
   const [edgeTypes,      setEdgeTypesRaw] = useState<EdgeTypeDef[]>(DEFAULT_EDGE_TYPES);
   const [sidebarWidth,   setSidebarWidth] = useState(295);
 
-  // Load from localStorage on mount
+  // Load types from Neo4j on mount
   useEffect(() => {
-    setNodeTypesRaw(loadLS("astrapath_node_types", DEFAULT_NODE_TYPES));
-    setEdgeTypesRaw(loadLS("astrapath_edge_types", DEFAULT_EDGE_TYPES));
+    fetch("/api/getTypes")
+      .then(r => r.json())
+      .then(data => {
+        if (data.nodeTypes) setNodeTypesRaw(data.nodeTypes);
+        if (data.edgeTypes) setEdgeTypesRaw(data.edgeTypes);
+      })
+      .catch(() => {/* keep defaults on network error */});
   }, []);
+
+  const saveTypes = (nodeT: NodeTypeDef[], edgeT: EdgeTypeDef[]) => {
+    fetch("/api/saveTypes", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nodeTypes: nodeT, edgeTypes: edgeT }),
+    }).catch(() => {});
+  };
 
   const setNodeTypes = (v: NodeTypeDef[]) => {
     setNodeTypesRaw(v);
-    localStorage.setItem("astrapath_node_types", JSON.stringify(v));
+    saveTypes(v, edgeTypes);
   };
   const setEdgeTypes = (v: EdgeTypeDef[]) => {
     setEdgeTypesRaw(v);
-    localStorage.setItem("astrapath_edge_types", JSON.stringify(v));
+    saveTypes(nodeTypes, v);
   };
 
   const handleDataChanged = () => setRefreshKey(k => k + 1);

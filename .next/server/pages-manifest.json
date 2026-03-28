@@ -3,5 +3,11 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/api/getGraph": "pages/api/getGraph.js",
-  "/": "pages/index.js"
+  "/api/getAllNodes": "pages/api/getAllNodes.js",
+  "/": "pages/index.js",
+  "/api/addEdge": "pages/api/addEdge.js",
+  "/api/saveNodePosition": "pages/api/saveNodePosition.js",
+  "/api/getTypes": "pages/api/getTypes.js",
+  "/api/saveTypes": "pages/api/saveTypes.js",
+  "/api/addNodes": "pages/api/addNodes.js"
 }

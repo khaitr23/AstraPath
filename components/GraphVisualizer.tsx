@@ -73,6 +73,8 @@ const GraphVisualizer: React.FC<{
   const containerRef = useRef<HTMLDivElement>(null);
   const fgRef = useRef<any>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  const posCache  = useRef<Record<string, { x: number; y: number }>>({});
+  const saveTimer = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   useEffect(() => {
     const update = () => {
@@ -89,10 +91,26 @@ const GraphVisualizer: React.FC<{
       if (data.error) { setError(data.error); return; }
       setError(null);
       const rad = Math.min(dimensions.width, dimensions.height) * 0.27;
+      let hasNewNodes = false;
       data.nodes.forEach((node: any, i: number) => {
-        const angle = (i / data.nodes.length) * 2 * Math.PI;
-        node.x = Math.cos(angle) * rad; node.y = Math.sin(angle) * rad;
-        node.fx = node.x; node.fy = node.y;
+        const cached = posCache.current[node.id];
+        if (cached) {
+          // in-memory cache wins (most recent drag position)
+          node.x = cached.x; node.y = cached.y;
+          node.fx = cached.x; node.fy = cached.y;
+        } else if (node.x != null && node.y != null) {
+          // persisted position from Neo4j — survives hard reloads
+          const px = Number(node.x), py = Number(node.y);
+          node.fx = px; node.fy = py;
+          node.x = px; node.y = py;
+          posCache.current[node.id] = { x: px, y: py };
+        } else {
+          // brand-new node with no saved position
+          const angle = (i / data.nodes.length) * 2 * Math.PI;
+          node.x = Math.cos(angle) * rad; node.y = Math.sin(angle) * rad;
+          node.fx = node.x; node.fy = node.y;
+          hasNewNodes = true;
+        }
       });
       const pairCount: Record<string, number> = {};
       const pairIndex: Record<string, number> = {};
@@ -107,7 +125,7 @@ const GraphVisualizer: React.FC<{
         pairIndex[key] = idx + 1;
       });
       setGraphData(data);
-      setTimeout(() => fgRef.current?.zoomToFit(400, 60), 50);
+      if (hasNewNodes) setTimeout(() => fgRef.current?.zoomToFit(400, 60), 50);
     }).catch(err => setError(err.message));
   };
 
@@ -258,7 +276,19 @@ const GraphVisualizer: React.FC<{
           }}
           onNodeClick={(node: any) => onNodeClick?.(node)}
           onLinkClick={(link: any) => onLinkClick?.(link)}
-          onNodeDragEnd={(node: any) => { node.fx = node.x; node.fy = node.y; }}
+          onNodeDragEnd={(node: any) => {
+            node.fx = node.x; node.fy = node.y;
+            posCache.current[node.id] = { x: node.x, y: node.y };
+            // debounce write to Neo4j — fires 600 ms after the drag settles
+            clearTimeout(saveTimer.current[node.id]);
+            saveTimer.current[node.id] = setTimeout(() => {
+              fetch("/api/saveNodePosition", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: node.id, x: node.x, y: node.y }),
+              });
+            }, 600);
+          }}
           linkCanvasObjectMode={() => "after"}
           linkCanvasObject={(link: any, ctx, globalScale) => {
             const onPath = linkOnPath(link);

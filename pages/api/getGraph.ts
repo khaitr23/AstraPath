@@ -5,8 +5,8 @@ export default async function handler(req, res) {
     const session = getSession();
     try {
       const result = await session.run(`
-            MATCH (n)
-            OPTIONAL MATCH (n)-[r]->(m)
+            MATCH (n) WHERE NOT n:_AstraConfig
+            OPTIONAL MATCH (n)-[r]->(m) WHERE NOT m:_AstraConfig
             RETURN n, r, m
      `);
 
